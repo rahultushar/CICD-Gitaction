@@ -1,0 +1,19 @@
+name: GitHub Actions Demo
+
+# Trigger: Run this whenever you push code to the main branch
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run a one-line script
+        run: echo "Hello! Your code is now in the GitHub Cloud."
+
+      - name: List files
+        run: ls -R
