@@ -1,40 +1,29 @@
-name: CI/CD Pipeline
+name: Deploy to Azure
 
-# 1. Trigger: When should this run?
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches:
+      - main  # Trigger on every push to main
 
 jobs:
-  # 2. CI Job: Build and Test
-  build-and-test:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Run Tests
-        run: npm test
-
-  # 3. CD Job: Deploy (Only runs if build-and-test passes)
-  deploy:
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' # Only deploy from main branch
-
-    steps:
-      - name: Deploy to Production
-        run: |
-          echo "🚀 Deploying to server..."
-          # Add your specific deployment commands here (e.g., SSH, AWS, or Vercel)
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'YOUR_APP_NAME_HERE' # Replace with your Azure Web App name
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: .
