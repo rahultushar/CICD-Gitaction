@@ -1,19 +1,40 @@
-name: GitHub Actions Demo
+name: CI/CD Pipeline
 
-# Trigger: Run this whenever you push code to the main branch
+# 1. Trigger: When should this run?
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  build:
+  # 2. CI Job: Build and Test
+  build-and-test:
     runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run a one-line script
-        run: echo "Hello! Your code is now in the GitHub Cloud."
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-      - name: List files
-        run: ls -R
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Tests
+        run: npm test
+
+  # 3. CD Job: Deploy (Only runs if build-and-test passes)
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' # Only deploy from main branch
+
+    steps:
+      - name: Deploy to Production
+        run: |
+          echo "🚀 Deploying to server..."
+          # Add your specific deployment commands here (e.g., SSH, AWS, or Vercel)
